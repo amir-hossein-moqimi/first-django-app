@@ -1,6 +1,7 @@
+from telnetlib import LOGOUT
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login
+from django.contrib.auth import login,logout
 
 def accounts(request):
     return HttpResponse('<b>accounts page</b>')
@@ -22,8 +23,18 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('articles:list')
+            if 'next' in request.POST:
+                # print(request.POST)
+                return redirect(request.POST.get('next'))
+            else:
+                return redirect('articles:list')
 
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form':form})
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('articles:list')
+    
